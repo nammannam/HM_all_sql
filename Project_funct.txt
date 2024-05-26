@@ -1,0 +1,31 @@
+1. Searching
+	+ Tìm kiếm khách hàng theo các thuộc tính. 
+	+ Tìm kiếm phòng theo loại phòng, mã phòng
+	+ Tìm kiếm phòng theo mã đặt phòng, tên đặt phòng, ngày đặt phòng
+	+ Tìm kiếm dịch vụ
+	+ Tìm kiếm nhân viên (nhân viên nào làm ở phòng ban, 	chức vụ nào)
+	+ Tìm kiếm các dịch vụ khách hàng sử dụng (nhập id khách 	rồi liệt kê các dịch vụ khách đã sử dụng)
+	
+
+2. Update	(Chỉnh sửa, thêm, xóa sửa)
+	+ Chỉnh sửa Full các thuộc tính của các bảng (mỗi thằng 1 bảng)
+
+	
+3. Thống kế
+	+ Tổng số đơn booking được đặt trong 1 ngày (cùng 1 date check-in có bao nhiêu phòng được đặt)
+	+ Tổng số người trong 1 phòng
+	+ Thống kê dữ liệu số người trong 1 phòng (VD: Phòng A, B, C có nhiều hơn 2 trẻ con ...)
+	+ Doanh thu đã được thanh toán tính theo ngày
+	+ Tổng số nhân viên của 1 phòng ban, chức vụ
+	+ Dịch vụ được sử dụng nhiều nhất or ít nhất 	
+	
+
+
+4. Kiểm tra
+	+ Kiểm tra phòng nào trống, phòng nào đang sử dụng (VD: Nhập phòng A -> Output: Phòng A trống, sử dụng ...)
+	+ Kiểm tra trong 1 ngày cụ thể có booking_id nào đã check-in or đã check-out
+	+ Kiểm tra có bao nhiêu phòng cùng tầng mà trống or không trống(đang sử dụng) (Input số tầng -> Output liệt kê các phòng)
+	+ Kiểm tra trạng thái thanh toán của 1 đơn booking
+	+ Kiểm tra 1 ngày cụ thể có phòng nào (room_id) đã check-in or check-out
+	+ Kiểm tra đơn booking nào bị trùng lặp (VD: có 1 đơn A đặt phòng A vào ngày check-in 17/02 nhưng cũng có 1 đơn B khác cũng đặt phòng A vào ngày check-in 17/02 -> trùng ngày trùng phòng. Hoặc trong trường hợp đơn A đặt phòng A với ngày check-in 17/02 và check-out là 19/02 nhưng có đơn B cũng đặt phòng A với ngày check-in 18/02 -> vì đơn A phòng A chưa được check-out vào ngày 18/02 nên 2 đơn A và B không hợp lệ  )
+	

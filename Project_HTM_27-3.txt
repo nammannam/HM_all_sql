@@ -1,0 +1,13 @@
+Những vấn đề trong bảng ngày 27-3
+
+Bảng Booking:
+	+ Chìa khóa với thuộc tính room_id đang bị sai
+	Vì hoạt động như sau: 1 đơn booking (tức 1 booking_id đã là Pkey nên sẽ tồn tại độc lập duy nhất 1 giá trị trong bảng) tương ứng với 1 room_id NHƯNG có thể có nhiều đơn khác nhau được đặt với 1 room_id (đó là vì có 2 đơn đặt cùng 1 phòng nhưng ngày check-in đã nằm ngoài ngày check-in tới check-out của 1 đơn còn lại -> hợp lệ).
+	Chính vì thế 1 room_id sẽ có thể xuất hiện nhiều lần trong bảng booking -> phải đặt chìa khóa FOREIGN KEY với room_id trong bảng BOOKING và KHÔNG đặt constraint UNIQUE với room_id.
+
+Bảng Payment:
+	+ Đề xuất xóa bỏ thuộc tính payment_id mà thanh vào đó đưa booking_id lên làm PRIMARY KEY đồng thời là FOREIGN KEY references tới bảng BOOKINGS -> chỉ cần tra cứu từ đơn booking lẫn hóa đơn payment theo booking_id là được (vì vốn booking_id trong bảng booking) -> rút gọn.
+
+
+Bảng Booking_Service:
+	+ Đổi tên date_using thành date.

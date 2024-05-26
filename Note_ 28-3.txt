@@ -1,0 +1,24 @@
+Sau thảo luận với cô 28/3
+
+1. Làm rõ đối tượng sử dụng của hệ CSDL. Từ đó phân quyền sử dụng các tính năng nào cho phù hợp. 
+	+ Bao gồm 2 đối tượng: Quản trị viên (1 người) và số Nhân viên cụ thể
+
+2. Về nội dung Dịch vụ của khách sạn: Do từng dịch vụ có nhiều đơn vị khác nhau (VD: giặt là -> theo kg, massage -> theo lần)
+	+ Cần phải xử lý lưu trữ hay chia nhóm thế nào
+
+3. Làm thế nào để check được booking là cùng đoàn ?
+
+4. Về vấn đề viết mô tả sản phầm CSDL cần tường minh, rõ ràng từng ý chặt chẽ
+- Quy trình làm việc của khách sạn: 
+	+ Lễ tân nhận thông tin của Khách hàng đại diện
+	+ 1 nhóm (đoàn) sẽ có 1 người đại diện đặt phòng. Tùy yêu cầu của khách hàng về việc xếp phòng theo đoàn hay nếu không thì khách sạn sẽ tự xếp phòng (vấn đề này không cần quan tâm nhiều trong khi thiết kế hệ thống CSDL chỉ để lưu trữ, tra cứu thông tin của khách sạn -> Đó là vấn đề, nguyên tắc làm việc của khách sạn)
+	+ Lễ tân cấp cho khách hàng 1 hoặc nhiều room_id nếu theo đoàn 
+	+ Thanh toán: không cần quan tâm tới việc ai thanh toàn (đấy là vấn đề của khách) vì nếu đi theo đoàn thì sẽ có 2 trường hợp:
+			++ Người đại diện trả hết
+			++ Hoặc từng người từng phòng đọc theo booking_id -> Người nào  ở phòng nào thanh toán phòng đấy.
+
+5.Lưu ý
+- Trình bày bài vừa đủ thông tin tránh lan man dài dòng
+- Có những câu hỏi ko liên quan tới CSDL mình thiết kế
+
+

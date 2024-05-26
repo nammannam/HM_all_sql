@@ -1,0 +1,15 @@
+1)
+Xóa khách hàng
+Thêm khách hàng mới
+Tìm khách hàng bằng personalID only
+Show full thông tin khách hàng
+Chỉnh sửa thông tin khách hàng TRỪ customerID (Tìm->Sửa)
+
+Từ đây ta có:
+- Khi khách hàng mới vào khách sạn, khách sạn hỏi personalID (thông tin cá nhân)
+- Check thông tin cá nhân của khách đã xuất hiện CSDL hay chưa (tìm CustomerID)
+- Sau đó, tiến tới bước add Booking
+
+2)
+Thêm Booking (trả về ID booking mới được add thành công nếu CustomerID đã tồn tại trong CSDL). CustomerID chưa tồn tại thì trả về 0 -> Quay về bước thêm khách hàng
+

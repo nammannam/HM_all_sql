@@ -1,0 +1,13 @@
+- Mục đích bài toán
+VD:ĐHBK
+	xây dựng hệ thống hoạt động thế nào
+	ai dùng hệ thống ?
+
+	+ Thực tế nhất có thể
+
+- Phần requirement
+	+ Cụ thể với mục đích này thì xây dựng thực hiện thế nào
+	+ Mỗi sv 2-4 chức năng cơ bản, 1-3 chức năng phức tạp (VD: Tạo 1 lớp học -> kiểm tra ràng buộc có tồn tại hay chưa; kiểm tra sv học-> học phần tiên quyết có học chưa ...)
+	+ Ko cần tính tới chức năng đáng giá, phức tạp bao nhiêu
+
+- In đề xuất ra giấy (slide..)
