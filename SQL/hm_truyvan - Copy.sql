@@ -1,6 +1,6 @@
 ---CUSTOMERS---
 --Add customer---
-CREATE or replace FUNCTION new_customer(rankid_in varchar, personalid_in varchar, firstname_in varchar, lastname_in varchar, birthdate_in varchar, gender_in char, email_in varchar, phone_in varchar, address_in varchar, OUT custadded_out BIGINT)
+CREATE FUNCTION new_customer(rankid_in int, personalid_in varchar, firstname_in varchar, lastname_in varchar, birthdate_in date, gender_in char, email_in varchar, phone_in varchar, address_in varchar, OUT custadded_out BIGINT)
 	RETURNS bigint 
 	AS $$
 	DECLARE find int;
@@ -18,11 +18,11 @@ CREATE or replace FUNCTION new_customer(rankid_in varchar, personalid_in varchar
 					 email,
 					 phone,
 					 address)
-		VALUES (rankid_in::bigint,
+		VALUES (rankid_in,
 			   personalid_in,
 			   firstname_in,
 			   lastname_in,
-			   birthdate_in::date,
+			   birthdate_in,
 			   gender_in,
 			   email_in,
 			   phone_in,
@@ -37,7 +37,7 @@ CREATE or replace FUNCTION new_customer(rankid_in varchar, personalid_in varchar
 	LANGUAGE plpgsql;	
 ---
 --TESTING--
-select new_customer('3', '202259', 'Khanh Nam', 'Nguyen', '2004-02-21', 'M',null, '113', 'Hanoi')
+select new_customer(3, '202215', 'Khanh Nam', 'Nguyen', '2004-02-21', 'M',null, '113', 'Hanoi')
 
 select * from customers
 	where customerid >= 500000
@@ -343,16 +343,11 @@ SELECT count(*) FROM search_booking(500003, current_date);
 
 -----Add new booking_rooms------
 
-CREATE OR REPLACE FUNCTION new_bkrooms (bookingid_in bigint, roomid_in varchar, checkin_in date, checkout_in date, numofadult_in int, numofchild_in int)
-RETURNS record
+CREATE OR REPLACE FUNCTION new_bkrooms (bookingid_in bigint, roomid_in varchar, checkin_in date, checkout_in date, numofadult_in int, numofchild_in int, OUT add_bkrooms bigint)
+RETURNS bigint
 AS
 $$
-DECLARE add_bkid bigint;
-DECLARE add_rid varchar;
-DECLARE add_bookingid bigint;
 	BEGIN
-	--KIỂM TRA BOOKINGID ĐÓ ĐÃ TỒN TẠI PHÒNG ADD VÀO CHƯA. MỖI BOOKINGID CHỈ ĐẶT 1 PHÒNG 1 LẦN
-		IF NOT EXISTS(SELECT bkid FROM booking_rooms WHERE bookingid = bookingid_in AND roomid = roomid_in) THEN
 		INSERT INTO booking_rooms(
 								bookingid,
 								roomid,
@@ -368,13 +363,8 @@ DECLARE add_bookingid bigint;
 			  numofchild_in);
 			  
 		
-		SELECT currval(pg_get_serial_sequence('booking_rooms', 'bkid')) INTO add_bkid;
-		add_rid = roomid_in;
-		add_bookingid = bookingid_in;
+		SELECT currval(pg_get_serial_sequence('booking_rooms', 'bkid')) INTO add_bkrooms;
 		
-		END IF;
-		
-		return (add_bkid, add_bookingid, add_rid);
 		
 	END
 $$
@@ -389,35 +379,22 @@ select * from customers
 
 select * from booking_rooms
 	where bookingid >= 700000;
-
---CÁCH SỬ DỤNG HÀM
-select * from new_bkrooms(700022, '0107', current_date, '2024-06-05', 2, 0) AS (bkid bigint, bookingid bigint ,roomid varchar);
+	
+select new_bkrooms(700022, '0104', current_date, '2024-06-05', 2, 0);
 
 ------------------
 ------Delete booking_rooms-----------
-CREATE OR REPLACE FUNCTION delete_bkrooms(bookingid_in bigint, roomid_in varchar)
-RETURNS record
+CREATE OR REPLACE FUNCTION delete_bkrooms(bookingid_in bigint, roomid_in varchar, checkin_in date, checkout_in date, OUT res_del bigint)
+RETURNS bigint
 AS
 $$
-DECLARE del_bookingid bigint;
-DECLARE del_roomid varchar;
-DECLARE res_del bigint;
 BEGIN
 		SELECT bkid INTO res_del
 		FROM booking_rooms
-		WHERE bookingid = bookingid_in AND roomid = roomid_in;
+		WHERE bookingid = bookingid_in AND roomid = roomid_in AND checkin = checkin_in AND checkout = checkout_in;
 		
-		IF (res_del IS NOT NULL) THEN
 		DELETE FROM booking_rooms 
 		WHERE bkid = res_del;
-		
-		del_bookingid = bookingid_in;
-		del_roomid = roomid_in;
-		
-		END IF;
-		
-		RETURN (res_del, del_bookingid, del_roomid);
-		
 	
 END
 $$
@@ -427,9 +404,8 @@ $$
 select * from booking_rooms
 	where bookingid >= 700000;
 
---CÁCH SỬ DỤNG
 explain analyze
-SELECT * FROM delete_bkrooms(700022, '0103') AS (bkid bigint, bookingid bigint, roomid varchar);
+SELECT delete_bkrooms(700022, '0102', '2024-05-31', '2024-06-05');
 
 -----------------
 -------Search bkrooms by bookingid-------
@@ -468,176 +444,6 @@ SELECT bkid, roomid, checkin, checkout, numofadult, numofchild
 		WHERE bookingid = 700022;
 
 -------------------------
-
------------ROOM_SERVICE------------
---------ADD ROOM USING SERVICE-------
-CREATE or REPLACE FUNCTION new_rmservice(bookingid_in bigint, roomid_in varchar, serviceid_in bigint, total_in bigint, date_in date, staffid_in bigint)
-RETURNS record
-AS
-$$
-DECLARE bkid_to_add bigint;
-DECLARE add_receiptid bigint;
-DECLARE add_bookingid bigint;
-DECLARE add_roomid varchar;
-DECLARE add_serviceid bigint;
-DECLARE add_servicename varchar;
-
-BEGIN
-		SELECT bkid INTO bkid_to_add 
-		FROM booking_rooms 
-		WHERE bookingid = bookingid_in AND roomid = roomid_in;
-		IF bkid_to_add is not NULL THEN
-		INSERT INTO room_service (bkid, 
-								 serviceid,
-								 total,
-								 date,
-								 staffid)
-		VALUES (bkid_to_add,
-			   serviceid_in,
-			   total_in,
-			   date_in,
-			   staffid_in);
-			  --Trong TH nhảy ra lỗi INSERT thì chỉ có thể lỗi ở staffid và serviceid do vi phạm FK
-			  
-			SELECT currval(pg_get_serial_sequence('room_service', 'receiptid')) INTO add_receiptid;
-			add_bookingid = bookingid_in;
-			add_roomid = roomid_in;
-			add_serviceid = serviceid_in;
-			SELECT ser.name INTO add_servicename
-			FROM services ser
-			WHERE serviceid = serviceid_in;
-			
-			END IF;
-			
-			RETURN (add_receiptid, add_bookingid, add_roomid, add_serviceid, add_servicename);
-
-
-END
-$$
-
-	LANGUAGE plpgsql;
----------------------------------
-------------TESTING------------------
-select * from staff
-where departmentid = 'SPA';
-
-
-select * from services;
-select * from room_service 
-where receiptid >= 6039806;
-
-select * from booking_rooms
-	where bookingid >= 700000;
-
-
-select * from booking_rooms
-where bkid = 4027506;
-
-
---CÁCH SỬ DỤNG
-select * from new_rmservice(700022, '0107', 4, 100000, current_date, 84) 
-AS (receiptid bigint, bookingid bigint, roomid varchar, serviceid bigint, servicename varchar);
-
---------------------------
-----------------DELETE ROOM SERVICE-------
-CREATE OR REPLACE FUNCTION delete_rmservice (receiptid_in bigint)
-RETURNS record
-AS
-$$
-DECLARE del_receiptid bigint;
-DECLARE del_bkid bigint;
-DECLARE del_serviceid bigint;
-DECLARE del_total bigint;
-DECLARE del_date date;
-DECLARE del_staffid bigint;
-
-
-BEGIN
-	IF EXISTS(SELECT receiptid FROM room_service WHERE receiptid = receiptid_in) THEN
-		
-	SELECT * INTO del_receiptid, del_bkid, del_serviceid, del_total, del_date, del_staffid
-	FROM room_service
-	WHERE receiptid = receiptid_in;
-	
-	DELETE FROM room_service
-	WHERE receiptid = receiptid_in;
-	
-	END IF;
-	
-	RETURN (del_receiptid, del_bkid, del_serviceid, del_total, del_date, del_staffid);
-	
-	
-END
-$$
-	LANGUAGE plpgsql;
-
-----------------------------
--------------TESTING-------------
-select * from services;
-select * from room_service 
-where receiptid >= 6039806;
-
---CÁCH SỬ DỤNG
-SELECT * FROM delete_rmservice(6039817) 
-AS (receiptid_del bigint, bkid_del bigint, serviceid_del bigint, total_del bigint, date_del date, staffid_del bigint);
-
---------------------------------
----------SEARCH FOR RECEIPTS BY bookingid + rooms = bkid----------
-CREATE FUNCTION search_rmsservice(bookingid_in bigint, roomid_in varchar)
-RETURNS TABLE (
-				receiptid_out bigint,
-				serviceid_out bigint,
-				servicename_out varchar,
-				total_out bigint,
-				date_out date,
-				staffid_out bigint)
-AS
-$$
-BEGIN
-
-	RETURN QUERY
-	SELECT rs.receiptid, rs.serviceid, s.name, rs.total, rs.date, rs.staffid
-	FROM room_service rs
-	JOIN services s ON s.serviceid = rs.serviceid
-	WHERE rs.bkid IN (
-		SELECT bkid FROM booking_rooms
-		WHERE bookingid = bookingid_in AND roomid = roomid_in
-	);
-	
-
-END
-$$
-	LANGUAGE plpgsql;
-
-
-----------------------------------------
-------------------TRUY VẤN THUẦN------------------------
-	SELECT rs.receiptid, rs.serviceid, s.name, rs.total, rs.date, rs.staffid
-	FROM room_service rs
-	JOIN services s ON s.serviceid = rs.serviceid
-	WHERE rs.bkid IN (
-		SELECT bkid FROM booking_rooms
-		WHERE bookingid = 700022 AND roomid = '0107'
-	);
-
---------------TESTING---------------
-select * from room_service 
-where receiptid >= 6039806;
-
-select * from booking_rooms
-	where bookingid >= 700000;
-
-select * from services;
-select * from room_service 
-where receiptid >= 6039806;
-
----CÁCH SỬ DỤNG HÀM
-SELECT * FROM search_rmsservice (700022, '0107');
-
-
-------------------------------------------------------------------
-
-
 
 
 

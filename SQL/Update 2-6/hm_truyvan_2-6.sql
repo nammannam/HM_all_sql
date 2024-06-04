@@ -37,10 +37,7 @@ CREATE or replace FUNCTION new_customer(rankid_in varchar, personalid_in varchar
 	LANGUAGE plpgsql;	
 ---
 --TESTING--
-select new_customer('3', '202259', 'Khanh Nam', 'Nguyen', '2004-02-21', 'M',null, '113', 'Hanoi')
 
-select * from customers
-	where customerid >= 500000
 ---
 
 --Delete customer---
@@ -67,7 +64,7 @@ CREATE FUNCTION delete_customer(s_customerid bigint, s_personalid varchar, OUT r
 ---
 
 --TESTING---
-select delete_customer(500013, '20225749')
+
 ----
 
 --Search customerID with pid or (name and phone)--
@@ -130,21 +127,7 @@ select delete_customer(500013, '20225749')
 
 ---TESTING---------------
 
-select * from customers
-	where customerid >= 500000
 
-select count(customerid) as cnt from customers
-	group by personalid
-	having count(customerid) > 0;
-
---here--
-explain analyze
-select search_customer('202215', null,null,null);
-
----!!! INDEX KHONG SU DUNG TRONG FUNCTIONNN 
-explain analyze
-select customerid from customers
-where personalid = '202215';
 
 
 ---
@@ -177,18 +160,6 @@ CREATE FUNCTION show_customer(pid_in varchar)
 
 ---------
 -----TESTING--------
-explain analyze --FASTEST
-SELECT * FROM customers
-	WHERE customerid = 500017;
-
---TH này rất lâu lâu hơn nhiều so với TH trên
-explain analyze
-SELECT * FROM customers
-	WHERE customerid = search_customer('202215', null,null,null);
-	
---dùng như sau nhanh hơn
-explain analyze
-select * from show_customer('202216');
 
 -------------------
 
@@ -246,18 +217,7 @@ select * from show_customer('202216');
 
 -----TESTING--------
 
-select * from booking
-	where bookingid > 700000;
-	
-select * from customers
-	where customerid >= 500000;
 
-explain analyze
-INSERT INTO booking(customerid, bookingdate, bookingtype, totaladult, totalchild)
-VALUES (500016, current_date, 'pre ordered', 2,2);
-
-explain analyze
-SELECT new_booking(500016, current_date,'đặt tại chỗ',10,0);
 
 --------------------
 
@@ -287,10 +247,6 @@ SELECT new_booking(500016, current_date,'đặt tại chỗ',10,0);
 	LANGUAGE plpgsql;
 
 ------------TESTING-----------
-select * from booking
-	where bookingid > 700000;
-	
-SELECT delete_booking(700015);
 
 ------------
 
@@ -322,22 +278,7 @@ SELECT delete_booking(700015);
 	LANGUAGE plpgsql;
 
 -----TESTING------
-select * from booking
-	where bookingid > 700000;
-select * from customers
-	where customerid > 500000;
-	
-explain analyze
-SELECT * FROM search_booking(500003, '2024-05-26');
 
---FUNCTION KHONG SU DUNG INDEX
-explain analyze
-select * from booking
-where customerid = 500003 and bookingdate = '2024-05-26';
-	
---COUNT SỐ BOOKING-----
-explain analyze
-SELECT count(*) FROM search_booking(500003, current_date);
 
 -------------------
 
@@ -382,16 +323,6 @@ $$
 	
 	
 ----------------------
-select * from booking
-	where bookingid > 700000;
-select * from customers
-	where customerid > 500000;
-
-select * from booking_rooms
-	where bookingid >= 700000;
-
---CÁCH SỬ DỤNG HÀM
-select * from new_bkrooms(700022, '0107', current_date, '2024-06-05', 2, 0) AS (bkid bigint, bookingid bigint ,roomid varchar);
 
 ------------------
 ------Delete booking_rooms-----------
@@ -424,12 +355,6 @@ $$
 	LANGUAGE plpgsql;
 ------------------
 ----TESTING-------
-select * from booking_rooms
-	where bookingid >= 700000;
-
---CÁCH SỬ DỤNG
-explain analyze
-SELECT * FROM delete_bkrooms(700022, '0103') AS (bkid bigint, bookingid bigint, roomid varchar);
 
 -----------------
 -------Search bkrooms by bookingid-------
@@ -454,18 +379,6 @@ $$
 
 ----------------------
 ------TESTING----------
-select * from booking_rooms
-	where bookingid >= 700000;
-
-explain analyze 
-SELECT * FROM search_bkrooms(700000);
-
-
---Sử dụng truy vấn thuần ko dùng function nhanh hơn !!!!!!
-explain analyze
-SELECT bkid, roomid, checkin, checkout, numofadult, numofchild
-		FROM booking_rooms
-		WHERE bookingid = 700022;
 
 -------------------------
 
@@ -518,25 +431,7 @@ $$
 	LANGUAGE plpgsql;
 ---------------------------------
 ------------TESTING------------------
-select * from staff
-where departmentid = 'SPA';
 
-
-select * from services;
-select * from room_service 
-where receiptid >= 6039806;
-
-select * from booking_rooms
-	where bookingid >= 700000;
-
-
-select * from booking_rooms
-where bkid = 4027506;
-
-
---CÁCH SỬ DỤNG
-select * from new_rmservice(700022, '0107', 4, 100000, current_date, 84) 
-AS (receiptid bigint, bookingid bigint, roomid varchar, serviceid bigint, servicename varchar);
 
 --------------------------
 ----------------DELETE ROOM SERVICE-------
@@ -573,13 +468,6 @@ $$
 
 ----------------------------
 -------------TESTING-------------
-select * from services;
-select * from room_service 
-where receiptid >= 6039806;
-
---CÁCH SỬ DỤNG
-SELECT * FROM delete_rmservice(6039817) 
-AS (receiptid_del bigint, bkid_del bigint, serviceid_del bigint, total_del bigint, date_del date, staffid_del bigint);
 
 --------------------------------
 ---------SEARCH FOR RECEIPTS BY bookingid + rooms = bkid----------
@@ -612,27 +500,8 @@ $$
 
 ----------------------------------------
 ------------------TRUY VẤN THUẦN------------------------
-	SELECT rs.receiptid, rs.serviceid, s.name, rs.total, rs.date, rs.staffid
-	FROM room_service rs
-	JOIN services s ON s.serviceid = rs.serviceid
-	WHERE rs.bkid IN (
-		SELECT bkid FROM booking_rooms
-		WHERE bookingid = 700022 AND roomid = '0107'
-	);
 
 --------------TESTING---------------
-select * from room_service 
-where receiptid >= 6039806;
-
-select * from booking_rooms
-	where bookingid >= 700000;
-
-select * from services;
-select * from room_service 
-where receiptid >= 6039806;
-
----CÁCH SỬ DỤNG HÀM
-SELECT * FROM search_rmsservice (700022, '0107');
 
 
 ------------------------------------------------------------------
